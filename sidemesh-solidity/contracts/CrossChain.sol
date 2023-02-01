@@ -14,11 +14,12 @@ contract CrossChain is CommonChain{
 
     function doCross(
         string memory txId,
+        string memory primaryNetworkId,
         string memory networkId,
         string memory invocationId,
         bytes memory args)
             public{
-                primaryTransactionManager.startPrimaryTransaction(txId);
+                primaryTransactionManager.startPrimaryTransaction(txId, primaryNetworkId);
                 primaryTransactionManager.registerNetworkTransaction(txId, networkId, invocationId, args);
                 primaryTransactionManager.preparePrimaryTransaction(txId);
     }

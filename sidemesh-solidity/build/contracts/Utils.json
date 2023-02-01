@@ -10,7 +10,7 @@
   "sourceMap": "69:3411:6:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;69:3411:6;;;;;;;;;;;;;;;;;",
   "deployedSourceMap": "69:3411:6:-:0;;;;;;;;",
   "source": "// SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.7.0 <0.9.0;\n\nlibrary Utils{\n\n    function hash(bytes memory data)internal pure returns(bytes32){\n        return keccak256(data);\n    }\n    function toString(bytes memory data)internal pure returns(string memory){\n        return string(data);\n    }\n    function toString(bool data)internal pure returns(string memory){\n        if(data) return \"true\";\n        else return \"false\";\n    }\n    function toBytes(string memory data)internal pure returns(bytes memory){\n        return bytes(data);\n    }\n    function toAddress(string memory data)internal pure returns(address){\n        bytes memory tmp = bytes(data);\n        uint160 iaddr = 0;\n        uint160 b1;\n        uint160 b2;\n        for (uint i = 2; i < 2 + 2 * 20; i += 2) {\n            iaddr *= 256;\n            b1 = uint160(uint8(tmp[i]));\n            b2 = uint160(uint8(tmp[i + 1]));\n            if ((b1 >= 97) && (b1 <= 102)) {\n                b1 -= 87;\n            } else if ((b1 >= 65) && (b1 <= 70)) {\n                b1 -= 55;\n            } else if ((b1 >= 48) && (b1 <= 57)) {\n                b1 -= 48;\n            }\n            if ((b2 >= 97) && (b2 <= 102)) {\n                b2 -= 87;\n            } else if ((b2 >= 65) && (b2 <= 70)) {\n                b2 -= 55;\n            } else if ((b2 >= 48) && (b2 <= 57)) {\n                b2 -= 48;\n            }\n            iaddr += (b1 * 16 + b2);\n        }\n        return address(iaddr);\n    }\n    function toUint(string memory s)internal pure returns(uint){\n        bytes memory b = bytes(s);\n        uint i;\n        uint counterBeforeDot;\n        uint counterAfterDot;\n        uint result = 0;\n        uint totNum = b.length;\n        totNum--;\n        bool hasDot = false;\n\n        for (i = 0; i < b.length; i++) {\n            uint c = uint(uint8(b[i]));\n\n            if (c >= 48 && c <= 57) {\n                result = result * 10 + (c - 48);\n                counterBeforeDot ++;\n                totNum--;\n            }\n\n            if(c == 46){\n                hasDot = true;\n                break;\n            }\n        }\n\n        if(hasDot) {\n            for (uint j = counterBeforeDot + 1; j < 18; j++) {\n                uint m = uint(uint8(b[j]));\n\n                if (m >= 48 && m <= 57) {\n                    result = result * 10 + (m - 48);\n                    counterAfterDot ++;\n                    totNum--;\n                }\n\n                if(totNum == 0){\n                    break;\n                }\n            }\n        }\n        if(counterAfterDot < 18){\n            uint addNum = 18 - counterAfterDot;\n            uint multuply = 10 ** addNum;\n            return result = result * multuply;\n        }\n\n        return result;\n    }\n    function equals(string memory a, string memory b)internal pure returns (bool) {\n        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));\n    }\n    function isEmpty(string memory a)internal pure returns (bool) {\n        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((\"\"))));\n    }\n    function checkBytes(string memory str)internal pure returns(bool){\n        return bytes(str).length != 0;\n    }\n    function checkAddress(address a)internal pure returns(bool){\n        return a == address(a);\n    }\n    function stringToBool(string memory data)internal pure returns(bool){\n        if(keccak256(abi.encodePacked(data)) == keccak256(abi.encodePacked(\"true\")))return true;\n        else return false;\n    }\n}",
-  "sourcePath": "/Users/shri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/contracts/lib/Utils.sol",
+  "sourcePath": "/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/contracts/lib/Utils.sol",
   "ast": {
     "absolutePath": "project:/contracts/lib/Utils.sol",
     "exportedSymbols": {
@@ -6798,6 +6798,12 @@
     "version": "0.8.9+commit.e5eed63a.Emscripten.clang"
   },
   "networks": {
+    "2021": {
+      "events": {},
+      "links": {},
+      "address": "0x2a8ADcA42427412CE0E1fc4109Db982b7918c768",
+      "transactionHash": "0xeb58efd3bdc03778c4107e4fd7e5cb2cd515f6904025d6e83ad9911b146b527c"
+    },
     "5777": {
       "events": {},
       "links": {},
@@ -6806,7 +6812,7 @@
     }
   },
   "schemaVersion": "3.4.11",
-  "updatedAt": "2023-01-26T14:42:19.121Z",
+  "updatedAt": "2023-01-30T23:01:44.167Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

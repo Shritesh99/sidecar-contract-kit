@@ -19,6 +19,7 @@ contract PrimaryTransactionManager {
     }
 
     struct Transaction{
+        string primaryNetworkId;
         string networkId;
         string invocationId;
         string txId;
@@ -29,14 +30,17 @@ contract PrimaryTransactionManager {
 
     event PreparePrimaryTransaction(
         string txId,
+        string primaryNetworkId,
         string networkId,
+        string url,
         string invocatonId,
         bytes args
     );
 
     event PrimaryTxStatus(
         string txId,
-        PrimaryTransactionStatusType status
+        PrimaryTransactionStatusType status,
+        string networkUrl
     );
 
     mapping(bytes32 => Transaction) transactions;
@@ -69,14 +73,20 @@ contract PrimaryTransactionManager {
             bytes32 hash = Utils.hash(abi.encodePacked(txId));
             
             transactions[hash].status = PrimaryTransactionStatusType(_status);
-            emit PrimaryTxStatus(txId, PrimaryTransactionStatusType(_status));
+            if(_status == 0){
+                emit PrimaryTxStatus(txId, PrimaryTransactionStatusType(_status), "");
+            }else{
+                (, , string memory url) = register.resolveNetwork(transactions[hash].networkId);
+                emit PrimaryTxStatus(txId, PrimaryTransactionStatusType(_status), url);
+            }
     }
 
-    function startPrimaryTransaction(string memory txId)
+    function startPrimaryTransaction(string memory txId, string memory primaryNetworkId)
         external checkTx(txId, false, Constants.ERROR_TX_EXIST){
             bytes32 hash = Utils.hash(abi.encodePacked(txId));
             
             Transaction storage tsx = transactions[hash];
+            tsx.primaryNetworkId = primaryNetworkId;
             tsx.txId = txId;
             tsx.isValid = true;
             tsx.status = PrimaryTransactionStatusType.PRIMARY_TRANSACTION_STARTED;
@@ -105,11 +115,11 @@ contract PrimaryTransactionManager {
 
             lockManager.putLock(txId);
             
-            (string memory networkId, , ) = register.resolveNetwork(transactions[hash].networkId);
+            (string memory networkId, , string memory url) = register.resolveNetwork(transactions[hash].networkId);
             
             (string memory invocatonId, , , bytes memory args) = register.resolveInvocation(transactions[hash].networkId, transactions[hash].invocationId);
             
-            emit PreparePrimaryTransaction(txId, networkId, invocatonId, args);
+            emit PreparePrimaryTransaction(txId, transactions[hash].primaryNetworkId, networkId, url, invocatonId, args);
             
             changeStatus(txId, 1);
     }

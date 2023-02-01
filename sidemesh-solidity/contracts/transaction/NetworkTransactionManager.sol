@@ -35,7 +35,8 @@ contract NetworkTransactionManager {
 
     event NetworkTxStatus(
         string txId,
-        NetworkTransactionStatusType status
+        NetworkTransactionStatusType status,
+        string primaryNetworkUrl
     );
 
     mapping(bytes32 => Transaction) transactions;
@@ -67,7 +68,9 @@ contract NetworkTransactionManager {
         bytes32 hash = Utils.hash(abi.encodePacked(txId));
         
         transactions[hash].status = NetworkTransactionStatusType(_status);
-        emit NetworkTxStatus(txId, NetworkTransactionStatusType(_status));
+
+        (, , string memory url) = register.resolveNetwork(transactions[hash].primaryNetworkId);
+        emit NetworkTxStatus(txId, NetworkTransactionStatusType(_status), url);
     }
 
     function startNetworkTransaction(

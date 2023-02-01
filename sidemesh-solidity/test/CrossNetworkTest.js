@@ -60,10 +60,9 @@ contract("CrossNetwork", (accounts) => {
 			web3.utils.toHex(args),
 			{ from: account }
 		);
-
-		await truffleAssert.eventEmitted(
+		truffleAssert.eventEmitted(
 			result,
-			"PrepareNetworkTransaction",
+			"NetworkTxStatus",
 			(ev) => {
 				assert(ev.txId === txId, "Triggered Prepare Network Tx");
 				return true;
@@ -73,11 +72,11 @@ contract("CrossNetwork", (accounts) => {
 	});
 	it("ConfirmDoNetwork", async () => {
 		const result = await crossNetworkInstance.confirmDoNetwork(txId);
-		truffleAssert.eventEmitted(
+		await truffleAssert.eventEmitted(
 			result,
-			"NetworkTxStatus",
+			"ConfirmNetworkTransaction",
 			(ev) => {
-				assert(ev.txId === txId, "Triggered Confirm Network Tx");
+				assert(ev.txId === txId, "Triggered Prepare Network Tx");
 				return true;
 			},
 			"Event: Confirm Network Tx"
