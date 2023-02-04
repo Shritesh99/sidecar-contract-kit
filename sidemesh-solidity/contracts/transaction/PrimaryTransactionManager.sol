@@ -1,13 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.0 <0.9.0;
 
-import "../lib/Utils.sol";
-import "../lib/Constants.sol";
-
 import "../resource/Register.sol";
 import "../lock/LockManager.sol";
 
 contract PrimaryTransactionManager {
+
+    string constant public ERROR_REG_ID_NOT_FOUND = "[Register] Cant able find id";
+    string constant public ERROR_REG_ID_FOUND = "[Register] ID already exist, please send a different one";
+    string constant public ERROR_INO_ID_NOT_FOUND = "[Invocation] Cant able find id";
+    string constant public ERROR_INO_ID_FOUND = "[Invocation] ID already exist, please send a different one";
+    string constant public ERROR_LOCK_NOT_VALID = "Lock is not valid";
+    string constant public ERROR_LOCK_EXIST = "Lock already exist at timestamp: ";
+    string constant public ERROR_LOCK_NOT_EXIST = "Lock not exist";
+    string constant public ERROR_TX_EXIST = "Tx already exist";
+    string constant public ERROR_TX_NOT_EXIST = "Tx not exist";
+    string constant public ERROR_INVALID_STATUS = "Invalid status";
 
     enum PrimaryTransactionStatusType{
         PRIMARY_TRANSACTION_STARTED, // 0
@@ -54,7 +62,7 @@ contract PrimaryTransactionManager {
     }
 
     modifier checkInvocationID(string memory networkID, string memory id){
-        require(register.checkInvocationIDExist(networkID, id), Constants.ERROR_INO_ID_NOT_FOUND);
+        require(register.checkInvocationIDExist(networkID, id), ERROR_INO_ID_NOT_FOUND);
         _;
     }
 
@@ -64,13 +72,13 @@ contract PrimaryTransactionManager {
     }
 
     function checkTxExist(string memory txId) public view returns(bool){
-        bytes32 hash = Utils.hash(bytes(txId));
+        bytes32 hash = keccak256(bytes(txId));
         return transactions[hash].isValid;
     }
 
     function changeStatus(string memory txId, uint _status) 
-        public checkTx(txId, true, Constants.ERROR_TX_NOT_EXIST){
-            bytes32 hash = Utils.hash(abi.encodePacked(txId));
+        public checkTx(txId, true, ERROR_TX_NOT_EXIST){
+            bytes32 hash = keccak256(abi.encodePacked(txId));
             
             transactions[hash].status = PrimaryTransactionStatusType(_status);
             if(_status == 0){
@@ -82,8 +90,8 @@ contract PrimaryTransactionManager {
     }
 
     function startPrimaryTransaction(string memory txId, string memory primaryNetworkId)
-        external checkTx(txId, false, Constants.ERROR_TX_EXIST){
-            bytes32 hash = Utils.hash(abi.encodePacked(txId));
+        external checkTx(txId, false, ERROR_TX_EXIST){
+            bytes32 hash = keccak256(abi.encodePacked(txId));
             
             Transaction storage tsx = transactions[hash];
             tsx.primaryNetworkId = primaryNetworkId;
@@ -99,8 +107,8 @@ contract PrimaryTransactionManager {
         string memory networkId,
         string memory invocationId,
         bytes memory args)
-        external checkInvocationID(networkId, invocationId) checkTx(txId, true, Constants.ERROR_TX_NOT_EXIST){
-            bytes32 hash = Utils.hash(abi.encodePacked(txId));
+        external checkInvocationID(networkId, invocationId) checkTx(txId, true, ERROR_TX_NOT_EXIST){
+            bytes32 hash = keccak256(abi.encodePacked(txId));
             
             register.addArgs(networkId, invocationId, args);
 
@@ -109,9 +117,9 @@ contract PrimaryTransactionManager {
     }
 
     function preparePrimaryTransaction(string memory txId)
-        external checkTx(txId, true, Constants.ERROR_TX_NOT_EXIST){
-        bytes32 hash = Utils.hash(abi.encodePacked(txId));
-            require(transactions[hash].status == PrimaryTransactionStatusType.PRIMARY_TRANSACTION_STARTED, Constants.ERROR_INVALID_STATUS);
+        external checkTx(txId, true, ERROR_TX_NOT_EXIST){
+        bytes32 hash = keccak256(abi.encodePacked(txId));
+            require(transactions[hash].status == PrimaryTransactionStatusType.PRIMARY_TRANSACTION_STARTED, ERROR_INVALID_STATUS);
 
             lockManager.putLock(txId);
             
@@ -125,9 +133,9 @@ contract PrimaryTransactionManager {
     }
 
     function confirmPrimaryTransaction(string memory txId)
-        external checkTx(txId, true, Constants.ERROR_TX_NOT_EXIST){
-            bytes32 hash = Utils.hash(abi.encodePacked(txId));
-            require(transactions[hash].status == PrimaryTransactionStatusType.NETWORK_TRANSACTION_PREPARED, Constants.ERROR_INVALID_STATUS);
+        external checkTx(txId, true, ERROR_TX_NOT_EXIST){
+            bytes32 hash = keccak256(abi.encodePacked(txId));
+            require(transactions[hash].status == PrimaryTransactionStatusType.NETWORK_TRANSACTION_PREPARED, ERROR_INVALID_STATUS);
 
             lockManager.releaseLock(txId);
             changeStatus(txId, 4);

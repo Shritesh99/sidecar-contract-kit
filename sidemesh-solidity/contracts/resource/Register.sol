@@ -1,10 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.0 <0.9.0;
 
-import "../lib/Utils.sol";
-import "../lib/Constants.sol";
-
 contract Register{
+    string constant public ERROR_REG_ID_NOT_FOUND = "[Register] Cant able find id";
+    string constant public ERROR_REG_ID_FOUND = "[Register] ID already exist, please send a different one";
+    string constant public ERROR_INO_ID_NOT_FOUND = "[Invocation] Cant able find id";
+    string constant public ERROR_INO_ID_FOUND = "[Invocation] ID already exist, please send a different one";
+    string constant public ERROR_LOCK_NOT_VALID = "Lock is not valid";
+    string constant public ERROR_LOCK_EXIST = "Lock already exist at timestamp: ";
+    string constant public ERROR_LOCK_NOT_EXIST = "Lock not exist";
+    string constant public ERROR_TX_EXIST = "Tx already exist";
+    string constant public ERROR_TX_NOT_EXIST = "Tx not exist";
+    string constant public ERROR_INVALID_STATUS = "Invalid status";
 
     struct Invocation{
         string id;
@@ -43,7 +50,7 @@ contract Register{
         _;
     }
     function checkNetworkIDExist(string memory id)public view returns(bool){
-        bytes32 hash = Utils.hash(bytes(id));
+        bytes32 hash = keccak256(bytes(id));
         return registeredNetworks[hash].isValid;
     }
     
@@ -53,9 +60,9 @@ contract Register{
     }
 
     function checkInvocationIDExist(string memory networkID, string memory id) 
-        checkNetworkID(networkID, true, Constants.ERROR_REG_ID_NOT_FOUND) public view returns(bool){
-            bytes32 networkHash = Utils.hash(bytes(networkID));
-            bytes32 hash = Utils.hash(bytes(id));
+        checkNetworkID(networkID, true, ERROR_REG_ID_NOT_FOUND) public view returns(bool){
+            bytes32 networkHash = keccak256(bytes(networkID));
+            bytes32 hash = keccak256(bytes(id));
             return registeredNetworks[networkHash].invocations[hash].isValid;
     }
 
@@ -65,9 +72,9 @@ contract Register{
         string memory url
         // uint chainid
         )
-        checkNetworkID(id, false, Constants.ERROR_REG_ID_FOUND)
+        checkNetworkID(id, false, ERROR_REG_ID_FOUND)
         external {
-            bytes32 hash = Utils.hash(bytes(id));
+            bytes32 hash = keccak256(bytes(id));
             
             Network storage network = registeredNetworks[hash];
             network.id = id;
@@ -86,9 +93,9 @@ contract Register{
     
     function resolveNetwork(string memory id)
         external view
-        checkNetworkID(id, true, Constants.ERROR_REG_ID_NOT_FOUND)
+        checkNetworkID(id, true, ERROR_REG_ID_NOT_FOUND)
         returns(string memory, string memory, string memory){
-            bytes32 hash = Utils.hash(bytes(id));
+            bytes32 hash = keccak256(bytes(id));
             return (
                 registeredNetworks[hash].id,
                 registeredNetworks[hash].name,
@@ -102,9 +109,9 @@ contract Register{
         string memory id,
         address contractAddress,
         string memory functionSignature
-        ) external checkInvocationID(networkId, id, false, Constants.ERROR_INO_ID_FOUND){
-            bytes32 hashNetworkID = Utils.hash(bytes(networkId));
-            bytes32 hash = Utils.hash(bytes(id));
+        ) external checkInvocationID(networkId, id, false, ERROR_INO_ID_FOUND){
+            bytes32 hashNetworkID = keccak256(bytes(networkId));
+            bytes32 hash = keccak256(bytes(id));
 
             Invocation storage invocation = registeredNetworks[hashNetworkID].invocations[hash];
             invocation.id = id;
@@ -122,10 +129,10 @@ contract Register{
 
     function resolveInvocation(string memory networkId, string memory id)
         external view
-        checkInvocationID(networkId, id, true, Constants.ERROR_INO_ID_NOT_FOUND)
+        checkInvocationID(networkId, id, true, ERROR_INO_ID_NOT_FOUND)
         returns(string memory, address, string memory, bytes memory){
-            bytes32 hashNetworkID = Utils.hash(bytes(networkId));
-            bytes32 hash = Utils.hash(bytes(id));
+            bytes32 hashNetworkID = keccak256(bytes(networkId));
+            bytes32 hash = keccak256(bytes(id));
 
             return (
                 registeredNetworks[hashNetworkID].invocations[hash].id,
@@ -136,9 +143,9 @@ contract Register{
     }
 
     function addArgs(string memory networkId, string memory id, bytes memory args)
-        external  checkInvocationID(networkId, id, true, Constants.ERROR_INO_ID_NOT_FOUND){
-            bytes32 hashNetworkID = Utils.hash(bytes(networkId));
-            bytes32 hash = Utils.hash(bytes(id));
+        external  checkInvocationID(networkId, id, true, ERROR_INO_ID_NOT_FOUND){
+            bytes32 hashNetworkID = keccak256(bytes(networkId));
+            bytes32 hash = keccak256(bytes(id));
 
             registeredNetworks[hashNetworkID].invocations[hash].args = args;
     }

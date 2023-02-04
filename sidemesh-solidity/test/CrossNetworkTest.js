@@ -13,28 +13,27 @@ contract("CrossNetwork", (accounts) => {
 		funcSign,
 		args;
 	let txId;
-	let crossNetworkInstance;
-	before(async () => {
-		account = accounts[0];
+	// let crossNetworkInstance;
+	// before(async () => {
+	account = accounts[0];
 
-		primaryNetworkId = "primaryNetworkId";
-		primaryNetworkName = "besu";
-		primaryNetworkUrl = "http://127.0.0.1:7545";
+	primaryNetworkId = "primaryNetworkId";
+	primaryNetworkName = "besu";
+	primaryNetworkUrl = "http://127.0.0.1:7545";
 
-		networkId = "networkId";
-		networkName = "fabric";
-		networkUrl = "http://127.0.0.1:7545";
-		invocationId = "invocationId";
-		contractAddress = "0xcFFB419EA4855c1FDa876119aBA3D062d7FC31D7";
-		funcSign = "set(uint256)";
+	networkId = "networkId";
+	networkName = "fabric";
+	networkUrl = "http://127.0.0.1:7545";
+	invocationId = "invocationId";
+	contractAddress = "0xcFFB419EA4855c1FDa876119aBA3D062d7FC31D7";
+	funcSign = "set(uint256)";
 
-		args = 12;
+	args = 12;
 
-		txId = "test";
-
-		crossNetworkInstance = await CrossNetwork.deployed();
-	});
+	txId = "test";
+	// });
 	it("DoNetwork", async () => {
+		const crossNetworkInstance = await CrossNetwork.deployed();
 		await crossNetworkInstance.registerPrimaryNetwork(
 			primaryNetworkId,
 			primaryNetworkName,
@@ -71,6 +70,7 @@ contract("CrossNetwork", (accounts) => {
 		);
 	});
 	it("ConfirmDoNetwork", async () => {
+		const crossNetworkInstance = await CrossNetwork.deployed();
 		const result = await crossNetworkInstance.confirmDoNetwork(txId);
 		await truffleAssert.eventEmitted(
 			result,
