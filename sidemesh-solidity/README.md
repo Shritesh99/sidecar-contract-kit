@@ -8,46 +8,48 @@ truffle compile
 truffle publish
 ```
 
-Contract Wrappers
+```
+
+ff deploy ethereum dev Register.json
+ff deploy ethereum dev LockManager.json 0x5f55f168d5c31cfc2d998d9175b99809dc9898ae
+
+ff deploy ethereum dev PrimaryTransactionManager.json 0x5f55f168d5c31cfc2d998d9175b99809dc9898ae 0x6aaf6916a4eea2b1bd1d800dec9099938b482862
+
+ff deploy ethereum dev CrossChain.json 0x5f55f168d5c31cfc2d998d9175b99809dc9898ae 0x2167d9f8b0db1962c789027d50cc7cf90b26c083
+
+ff deploy ethereum dev NetworkTransactionManager.json
+
+ff deploy etherum dev CrossNetwork.json
 
 ```
 
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/Enums.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/Costants.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/GlobalTransactionManager.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/IGlobalTransactionManager.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/ILockManager.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/LockManager.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/Register.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/IRegister.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/ISidemesh.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/Sidemesh.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/Verifier.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/IVerifier.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/Structs.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
-
-web3j generate truffle --truffle-json=/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/build/contracts/Utils.json -o /home/rxshri99/WebProjects/Mesher-Solidity/src/main/java -p com.crossmesh.mesher_solidity.contracts
 ```
+{
+  "input": {
+    "id": "1",
+    "name": "besu-1",
+    "url": "http://192.168.0.215:5001"
+  }
+}
 
-ff deploy ethereum besu Register.json
-ff deploy ethereum besu LockManager.json 0x5f55f168d5c31cfc2d998d9175b99809dc9898ae
+{
+  "input": {
+    "contractAddress": "0xc67cd46b146551cfa3f3ca6a7ca6c2983fdfd221",
+    "functionSignature": "set(uint256)",
+    "invocationId": "iv-1",
+    "name": "Set",
+    "networkId": "2",
+    "url": "http://192.168.0.162:5001"
+  }
+}
 
-ff deploy ethereum besu PrimaryTransactionManager.json 0x5f55f168d5c31cfc2d998d9175b99809dc9898ae 0x6aaf6916a4eea2b1bd1d800dec9099938b482862
-
-ff deploy etherum besu CrossChain.json 0x5f55f168d5c31cfc2d998d9175b99809dc9898ae 0x2167d9f8b0db1962c789027d50cc7cf90b26c083
-
-ff deploy ethereum besu NetworkTransactionManager.json
-
-ff deploy etherum besu CrossNetwork.json
+{
+  "input": {
+    "args": "10",
+    "invocationId": "iv-1",
+    "networkId": "2",
+    "primaryNetworkId": "1",
+    "txId": "aaa"
+  }
+}
+```
