@@ -44,7 +44,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Changed\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"get\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"newValue\",\"type\":\"uint256\"}],\"name\":\"set\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/SimpleStorage.sol\":\"SimpleStorage\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":1000},\"remappings\":[]},\"sources\":{\"project:/contracts/SimpleStorage.sol\":{\"keccak256\":\"0x7bdafdcb1170d05c29f8f56df571135951c7d4f5f0242c9857190f5bb8c2ac1d\",\"license\":\"Apache-2.0\",\"urls\":[\"bzz-raw://31602f7678e1ef84135346e9b6a56cfa5bbd6443156c5b2cc8ccf5563dde9fc9\",\"dweb:/ipfs/QmetADe4z2GjzxmgaSEaz3n5BgKMCXLC3yFetGCynHs3Y3\"]}},\"version\":1}",
@@ -304,7 +305,7 @@
   "sourceMap": "99:449:4:-:0;;;;;;;;;;;;;;;;;;;",
   "deployedSourceMap": "99:449:4:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;249:111;;;;;;:::i;:::-;;:::i;:::-;;419:70;455:7;481:1;419:70;;345:25:9;;;333:2;318:18;419:70:4;;;;;;;249:111;297:1;:12;;;324:29;;345:25:9;;;332:10:4;;324:29;;333:2:9;318:18;324:29:4;;;;;;;249:111;:::o;14:180:9:-;73:6;126:2;114:9;105:7;101:23;97:32;94:52;;;142:1;139;132:12;94:52;-1:-1:-1;165:23:9;;14:180;-1:-1:-1;14:180:9:o",
   "source": "// SPDX-License-Identifier: Apache-2.0\npragma solidity >=0.7.0 <0.9.0;\n\n// Declares a new contract\ncontract SimpleStorage {\n    // Storage. Persists in between transactions\n    uint256 x;\n\n    // Allows the unsigned integer stored to be changed\n    function set(uint256 newValue) public {\n        x = newValue;\n        emit Changed(msg.sender, newValue);\n    }\n\n    // Returns the currently stored unsigned integer\n    function get() public view returns (uint256) {\n        return x;\n    }\n\n    event Changed(address indexed from, uint256 value);\n}",
-  "sourcePath": "/home/rxshri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/contracts/SimpleStorage.sol",
+  "sourcePath": "/Users/shri99/WebProjects/sidecar-contract-kit/sidemesh-solidity/contracts/SimpleStorage.sol",
   "ast": {
     "absolutePath": "project:/contracts/SimpleStorage.sol",
     "exportedSymbols": {
@@ -724,9 +725,17 @@
     "name": "solc",
     "version": "0.8.9+commit.e5eed63a.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "2021": {
+      "events": {},
+      "links": {},
+      "address": "0x4B75405D5E4DC8EF6F8f70257d1C337938d3d909",
+      "transactionHash": "0x82941784951904dab4520627f5647b8a79e1538da3236dcf1a7289aa5a4e80d9"
+    }
+  },
   "schemaVersion": "3.4.11",
-  "updatedAt": "2023-02-04T19:46:32.882Z",
+  "updatedAt": "2023-06-15T15:34:24.962Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},

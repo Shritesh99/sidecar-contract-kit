@@ -41,7 +41,7 @@ contract PrimaryTransactionManager {
         string primaryNetworkId,
         string networkId,
         string url,
-        string invocatonId,
+        string invocationId,
         bytes args
     );
 
