@@ -24,6 +24,7 @@ ff deploy etherum dev CrossNetwork.json
 ```
 
 ```
+// registerPrimaryNetwork
 {
   "input": {
     "id": "1",
@@ -31,7 +32,7 @@ ff deploy etherum dev CrossNetwork.json
     "url": "http://192.168.0.215:5001"
   }
 }
-
+// registerNetwork
 {
   "input": {
     "contractAddress": "0xc67cd46b146551cfa3f3ca6a7ca6c2983fdfd221",
@@ -42,13 +43,26 @@ ff deploy etherum dev CrossNetwork.json
     "url": "http://192.168.0.162:5001"
   }
 }
-
+// doCross & doNetwork
 {
   "input": {
     "args": "10",
     "invocationId": "iv-1",
     "networkId": "2",
     "primaryNetworkId": "1",
+    "txId": "aaa"
+  }
+}
+// confirm
+{
+  "input": {
+    "txId": "aaa"
+  }
+}
+// status
+{
+  "input": {
+    "_status": "string",
     "txId": "aaa"
   }
 }

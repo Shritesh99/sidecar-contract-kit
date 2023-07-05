@@ -81,12 +81,9 @@ contract PrimaryTransactionManager {
             bytes32 hash = keccak256(abi.encodePacked(txId));
             
             transactions[hash].status = PrimaryTransactionStatusType(_status);
-            if(_status == 0){
-                emit PrimaryTxStatus(txId, PrimaryTransactionStatusType(_status), "");
-            }else{
-                (, , string memory url) = register.resolveNetwork(transactions[hash].networkId);
-                emit PrimaryTxStatus(txId, PrimaryTransactionStatusType(_status), url);
-            }
+
+            (, , string memory url) = register.resolveNetwork(transactions[hash].networkId);
+            emit PrimaryTxStatus(txId, PrimaryTransactionStatusType(_status), url);
     }
 
     function startPrimaryTransaction(string memory txId, string memory primaryNetworkId)
@@ -98,8 +95,6 @@ contract PrimaryTransactionManager {
             tsx.txId = txId;
             tsx.isValid = true;
             tsx.status = PrimaryTransactionStatusType.PRIMARY_TRANSACTION_STARTED;
-            
-            changeStatus(txId, 0);
     }
     
     function registerNetworkTransaction(

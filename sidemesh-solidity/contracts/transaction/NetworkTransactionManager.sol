@@ -116,7 +116,7 @@ contract NetworkTransactionManager {
     function confirmNetworkTransaction(string memory txId)
         external checkTx(txId, true, ERROR_TX_NOT_EXIST){
             bytes32 hash = keccak256(abi.encodePacked(txId));
-            require(transactions[hash].status == NetworkTransactionStatusType.NETWORK_TRANSACTION_PREPARED, ERROR_INVALID_STATUS);
+            require(transactions[hash].status == NetworkTransactionStatusType.PRIMARY_TRANSACTION_COMMITTED, ERROR_INVALID_STATUS);
 
             (, address contractAddress, string memory functionSignature, bytes memory args) = register.resolveInvocation(transactions[hash].networkId, transactions[hash].invocationId);
             
