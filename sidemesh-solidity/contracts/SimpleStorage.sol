@@ -7,9 +7,10 @@ contract SimpleStorage {
     uint256 x;
 
     // Allows the unsigned integer stored to be changed
-    function set(uint256 newValue) public {
+    function set(uint256 newValue) public returns(uint256){
         x = newValue;
         emit Changed(msg.sender, newValue);
+        return x;
     }
 
     // Returns the currently stored unsigned integer

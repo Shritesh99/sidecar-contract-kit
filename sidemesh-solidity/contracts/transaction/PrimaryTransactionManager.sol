@@ -6,6 +6,8 @@ import "../lock/LockManager.sol";
 
 contract PrimaryTransactionManager {
 
+    string constant public CALLBACK = "_callback(string,bytes)";
+
     string constant public ERROR_REG_ID_NOT_FOUND = "[Register] Cant able find id";
     string constant public ERROR_REG_ID_FOUND = "[Register] ID already exist, please send a different one";
     string constant public ERROR_INO_ID_NOT_FOUND = "[Invocation] Cant able find id";
@@ -16,6 +18,7 @@ contract PrimaryTransactionManager {
     string constant public ERROR_TX_EXIST = "Tx already exist";
     string constant public ERROR_TX_NOT_EXIST = "Tx not exist";
     string constant public ERROR_INVALID_STATUS = "Invalid status";
+    string constant public ERROR_CALLBACK_FAILED = "Callback execution failed";
 
     enum PrimaryTransactionStatusType{
         PRIMARY_TRANSACTION_STARTED, // 0
@@ -23,7 +26,8 @@ contract PrimaryTransactionManager {
         NETWORK_TRANSACTION_STARTED, // 2
         NETWORK_TRANSACTION_PREPARED, // 3
         PRIMARY_TRANSACTION_COMMITTED, // 4
-        NETWORK_TRANSACTION_COMMITTED // 5
+        NETWORK_TRANSACTION_COMMITTED, // 5
+        PRIMARY_TRANSACTION_FINISHED // 6
     }
 
     struct Transaction{
@@ -34,6 +38,7 @@ contract PrimaryTransactionManager {
         // string txProof;
         PrimaryTransactionStatusType status;
         bool isValid;
+        address callerContract;
     }
 
     event PreparePrimaryTransaction(
@@ -101,7 +106,8 @@ contract PrimaryTransactionManager {
         string memory txId,
         string memory networkId,
         string memory invocationId,
-        bytes memory args)
+        bytes memory args,
+        address callerContract)
         external checkInvocationID(networkId, invocationId) checkTx(txId, true, ERROR_TX_NOT_EXIST){
             bytes32 hash = keccak256(abi.encodePacked(txId));
             
@@ -109,6 +115,7 @@ contract PrimaryTransactionManager {
 
             transactions[hash].networkId = networkId;
             transactions[hash].invocationId = invocationId;
+            transactions[hash].callerContract = callerContract;
     }
 
     function preparePrimaryTransaction(string memory txId)
@@ -134,5 +141,13 @@ contract PrimaryTransactionManager {
 
             lockManager.releaseLock(txId);
             changeStatus(txId, 4);
+    }
+    function finishPrimaryTransaction(string memory txId, bytes memory data)external checkTx(txId, true, ERROR_TX_NOT_EXIST) {
+        bytes32 hash = keccak256(abi.encodePacked(txId));
+        require(transactions[hash].status == PrimaryTransactionStatusType.NETWORK_TRANSACTION_COMMITTED, ERROR_INVALID_STATUS);
+
+        (bool success, ) = transactions[hash].callerContract.call(abi.encodeWithSignature(CALLBACK, txId, data));
+        require(success, ERROR_CALLBACK_FAILED);
+        changeStatus(txId, 6);
     }
 }

@@ -7,6 +7,7 @@ import "./transaction/PrimaryTransactionManager.sol";
 contract CrossChain is CommonChain{
 
     PrimaryTransactionManager primaryTransactionManager;
+    address private callbackContract;
 
     constructor(address _register, address _primaryTransactionManager) CommonChain(_register) {
         primaryTransactionManager = PrimaryTransactionManager(_primaryTransactionManager);
@@ -19,12 +20,17 @@ contract CrossChain is CommonChain{
         string memory invocationId,
         bytes memory args)
             public{
+                callbackContract = msg.sender;
                 primaryTransactionManager.startPrimaryTransaction(txId, primaryNetworkId);
-                primaryTransactionManager.registerNetworkTransaction(txId, networkId, invocationId, args);
+                primaryTransactionManager.registerNetworkTransaction(txId, networkId, invocationId, args, msg.sender);
                 primaryTransactionManager.preparePrimaryTransaction(txId);
     }
     function confirmDoCross(string memory txId) public{
         primaryTransactionManager.confirmPrimaryTransaction(txId);
+    }
+
+    function finishPrimaryTransaction(string memory txId, bytes memory data)public{
+        primaryTransactionManager.finishPrimaryTransaction(txId, data);
     }
 
     function changeStatus(string memory txId, uint _status)public{

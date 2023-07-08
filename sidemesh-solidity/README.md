@@ -35,7 +35,7 @@ ff deploy etherum dev CrossNetwork.json
 // registerNetwork
 {
   "input": {
-    "contractAddress": "0xc67cd46b146551cfa3f3ca6a7ca6c2983fdfd221",
+    "contractAddress": "0xa38aefbe07a2156f8d22cf8148c26d01dafd547a",
     "functionSignature": "set(uint256)",
     "invocationId": "iv-1",
     "name": "Set",

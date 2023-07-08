@@ -38,7 +38,9 @@ contract NetworkTransactionManager {
 
     event ConfirmNetworkTransaction(
         string txId,
-        bool success
+        bool success,
+        bytes data,
+        string primaryNetworkUrl
     );
 
     event NetworkTxStatus(
@@ -120,9 +122,10 @@ contract NetworkTransactionManager {
 
             (, address contractAddress, string memory functionSignature, bytes memory args) = register.resolveInvocation(transactions[hash].networkId, transactions[hash].invocationId);
             
-            (bool success,) = contractAddress.call(abi.encodeWithSignature(functionSignature, args));
-            
-            emit ConfirmNetworkTransaction(txId, success);
+            (bool success, bytes memory data) = contractAddress.call(abi.encodeWithSignature(functionSignature, args));
+            (, , string memory url) = register.resolveNetwork(transactions[hash].primaryNetworkId);
+
+            emit ConfirmNetworkTransaction(txId, success, data, url);
             
             lockManager.releaseLock(txId);
             changeStatus(txId, 5);
