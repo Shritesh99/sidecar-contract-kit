@@ -5,7 +5,7 @@ import "../resource/Register.sol";
 import "../lock/LockManager.sol";
 
 contract NetworkTransactionManager {
-
+    bytes constant NULL = "";
     string constant public ERROR_REG_ID_NOT_FOUND = "[Register] Cant able find id";
     string constant public ERROR_REG_ID_FOUND = "[Register] ID already exist, please send a different one";
     string constant public ERROR_INO_ID_NOT_FOUND = "[Invocation] Cant able find id";
@@ -18,12 +18,9 @@ contract NetworkTransactionManager {
     string constant public ERROR_INVALID_STATUS = "Invalid status";
 
     enum NetworkTransactionStatusType{
-        PRIMARY_TRANSACTION_STARTED, // 0
-        PRIMARY_TRANSACTION_PREPARED, // 1
-        NETWORK_TRANSACTION_STARTED, // 2
-        NETWORK_TRANSACTION_PREPARED, // 3
-        PRIMARY_TRANSACTION_COMMITTED, // 4
-        NETWORK_TRANSACTION_COMMITTED // 5
+        NETWORK_TRANSACTION_STARTED, // 0
+        NETWORK_TRANSACTION_PREPARED, // 1
+        NETWORK_TRANSACTION_COMMITTED // 2
     }
 
     struct Transaction{
@@ -46,8 +43,7 @@ contract NetworkTransactionManager {
     event NetworkTxStatus(
         string txId,
         NetworkTransactionStatusType status,
-        string primaryNetworkUrl,
-        string networkUrl
+        string primaryNetworkUrl
     );
 
     mapping(bytes32 => Transaction) transactions;
@@ -77,12 +73,11 @@ contract NetworkTransactionManager {
 
     function changeStatus(string memory txId, uint _status) public checkTx(txId, true, ERROR_TX_NOT_EXIST){
         bytes32 hash = keccak256(abi.encodePacked(txId));
-        require(_status != 2 && _status-1 == uint(transactions[hash].status), ERROR_INVALID_STATUS);
+        require(_status == 0 || _status-1 == uint(transactions[hash].status), ERROR_INVALID_STATUS);
         transactions[hash].status = NetworkTransactionStatusType(_status);
 
         (, , string memory primaryNetworkUrl) = register.resolveNetwork(transactions[hash].primaryNetworkId);
-            (, , string memory networkUrl) = register.resolveNetwork(transactions[hash].networkId);
-        emit NetworkTxStatus(txId, NetworkTransactionStatusType(_status), primaryNetworkUrl, networkUrl);
+        emit NetworkTxStatus(txId, NetworkTransactionStatusType(_status), primaryNetworkUrl);
     }
 
     function startNetworkTransaction(
@@ -104,22 +99,18 @@ contract NetworkTransactionManager {
             transactions[hash].invocationId = invocationId;
             tsx.status = NetworkTransactionStatusType.NETWORK_TRANSACTION_STARTED;
             
-            changeStatus(txId, 2);
+            changeStatus(txId, 0);
     }
 
     function prepareNetworkTransaction(string memory txId) 
         external checkTx(txId, true, ERROR_TX_NOT_EXIST){
-            bytes32 hash = keccak256(abi.encodePacked(txId));
-            require(transactions[hash].status == NetworkTransactionStatusType.NETWORK_TRANSACTION_STARTED, ERROR_INVALID_STATUS);
-
             lockManager.putLock(txId);
-            changeStatus(txId, 3);
+            changeStatus(txId, 1);
     }
 
     function confirmNetworkTransaction(string memory txId)
         external checkTx(txId, true, ERROR_TX_NOT_EXIST){
             bytes32 hash = keccak256(abi.encodePacked(txId));
-            require(transactions[hash].status == NetworkTransactionStatusType.PRIMARY_TRANSACTION_COMMITTED, ERROR_INVALID_STATUS);
 
             (, address contractAddress, string memory functionSignature, bytes memory args) = register.resolveInvocation(transactions[hash].networkId, transactions[hash].invocationId);
             
@@ -127,7 +118,7 @@ contract NetworkTransactionManager {
             (, , string memory url) = register.resolveNetwork(transactions[hash].primaryNetworkId);
             
             lockManager.releaseLock(txId);
-            changeStatus(txId, 5);
+            changeStatus(txId, 2);
 
             emit ConfirmNetworkTransaction(txId, success, data, url);
     }

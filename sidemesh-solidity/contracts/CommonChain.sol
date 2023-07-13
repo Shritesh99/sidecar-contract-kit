@@ -23,12 +23,16 @@ contract CommonChain{
     function registerNetwork(
         string memory networkId,
         string memory name,
-        string memory url,
+        string memory url
+            ) public{
+                register.registerNetwork(networkId, name, url);
+    }
+    function registerInvocation(
+        string memory networkId,
         string memory invocationId,
         address contractAddress,
         string memory functionSignature
-            ) public{
-                register.registerNetwork(networkId, name, url);
-                register.registerInvocation(networkId, invocationId, contractAddress, functionSignature);
+        )public{
+            register.registerInvocation(networkId, invocationId, contractAddress, functionSignature);
     }
 }

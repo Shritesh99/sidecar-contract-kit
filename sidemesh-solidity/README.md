@@ -29,41 +29,58 @@ ff deploy etherum dev CrossNetwork.json
   "input": {
     "id": "1",
     "name": "besu-1",
-    "url": "http://192.168.0.214:5001"
+    "url": "http://192.168.0.162:5001"
   }
 }
 // registerNetwork
 {
   "input": {
+    "name": "besu-2",
+    "networkId": "2",
+    "url": "http://192.168.0.162:5001"
+  }
+}
+// register Invocation
+{
+  "input": {
     "contractAddress": "0x29b834ea8231c73c7afe0b383dc520256a0bc6a0",
     "functionSignature": "set(bytes)",
     "invocationId": "iv-1",
-    "name": "Set",
-    "networkId": "2",
-    "url": "http://192.168.0.162:5001"
+    "networkId": "2"
   }
 }
 // doCross & doNetwork
 {
   "input": {
-    "args": "10",
+    "args": "0x10",
     "invocationId": "iv-1",
     "networkId": "2",
     "primaryNetworkId": "1",
-    "txId": "aaa"
+    "txId": "tx-1"
   }
 }
 // confirm
 {
   "input": {
-    "txId": "aaa"
+    "txId": "tx-1"
   }
 }
 // status
 {
   "input": {
     "_status": "string",
-    "txId": "aaa"
+    "txId": "tx-1"
+  }
+}
+// Caller
+{
+  "input": {
+    "args": "0x10",
+    "crossChainAddress": "0x93d7ec8db4028b3d6f52ae1f647eabc5b023cab8",
+    "invocationId": "iv-1",
+    "networkId": "2",
+    "primaryNetworkId": "1",
+    "txId": "tx-1"
   }
 }
 ```

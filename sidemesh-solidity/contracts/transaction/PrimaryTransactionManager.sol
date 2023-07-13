@@ -23,11 +23,8 @@ contract PrimaryTransactionManager {
     enum PrimaryTransactionStatusType{
         PRIMARY_TRANSACTION_STARTED, // 0
         PRIMARY_TRANSACTION_PREPARED, // 1
-        NETWORK_TRANSACTION_STARTED, // 2
-        NETWORK_TRANSACTION_PREPARED, // 3
-        PRIMARY_TRANSACTION_COMMITTED, // 4
-        NETWORK_TRANSACTION_COMMITTED, // 5
-        PRIMARY_TRANSACTION_FINISHED // 6
+        PRIMARY_TRANSACTION_COMMITTED, // 2
+        PRIMARY_TRANSACTION_FINISHED // 3
     }
 
     struct Transaction{
@@ -53,7 +50,6 @@ contract PrimaryTransactionManager {
     event PrimaryTxStatus(
         string txId,
         PrimaryTransactionStatusType status,
-        string primaryNetworkUrl,
         string networkUrl
     );
 
@@ -85,12 +81,11 @@ contract PrimaryTransactionManager {
     function changeStatus(string memory txId, uint _status) 
         public checkTx(txId, true, ERROR_TX_NOT_EXIST){
             bytes32 hash = keccak256(abi.encodePacked(txId));
-            require(_status != 0 && _status-1 == uint(transactions[hash].status), ERROR_INVALID_STATUS);
+            require(_status == 0 || _status-1 == uint(transactions[hash].status), ERROR_INVALID_STATUS);
             transactions[hash].status = PrimaryTransactionStatusType(_status);
 
-            (, , string memory primaryNetworkUrl) = register.resolveNetwork(transactions[hash].primaryNetworkId);
             (, , string memory networkUrl) = register.resolveNetwork(transactions[hash].networkId);
-            emit PrimaryTxStatus(txId, PrimaryTransactionStatusType(_status), primaryNetworkUrl, networkUrl);
+            emit PrimaryTxStatus(txId, PrimaryTransactionStatusType(_status), networkUrl);
     }
 
     function startPrimaryTransaction(string memory txId, string memory primaryNetworkId)
@@ -123,8 +118,6 @@ contract PrimaryTransactionManager {
     function preparePrimaryTransaction(string memory txId)
         external checkTx(txId, true, ERROR_TX_NOT_EXIST){
         bytes32 hash = keccak256(abi.encodePacked(txId));
-            require(transactions[hash].status == PrimaryTransactionStatusType.PRIMARY_TRANSACTION_STARTED, ERROR_INVALID_STATUS);
-
             lockManager.putLock(txId);
             
             (string memory networkId, , string memory url) = register.resolveNetwork(transactions[hash].networkId);
@@ -137,17 +130,16 @@ contract PrimaryTransactionManager {
     function confirmPrimaryTransaction(string memory txId)
         external checkTx(txId, true, ERROR_TX_NOT_EXIST){
             bytes32 hash = keccak256(abi.encodePacked(txId));
-            require(transactions[hash].status == PrimaryTransactionStatusType.NETWORK_TRANSACTION_PREPARED, ERROR_INVALID_STATUS);
+            require(transactions[hash].status == PrimaryTransactionStatusType.PRIMARY_TRANSACTION_PREPARED, ERROR_INVALID_STATUS);
 
             lockManager.releaseLock(txId);
-            changeStatus(txId, 4);
+            changeStatus(txId, 2);
     }
     function finishPrimaryTransaction(string memory txId, bytes memory data)external checkTx(txId, true, ERROR_TX_NOT_EXIST) {
         bytes32 hash = keccak256(abi.encodePacked(txId));
-        // require(transactions[hash].status == PrimaryTransactionStatusType.NETWORK_TRANSACTION_COMMITTED, ERROR_INVALID_STATUS);
 
         (bool success, ) = transactions[hash].callerContract.call(abi.encodeWithSignature(CALLBACK, txId, data));
         require(success, ERROR_CALLBACK_FAILED);
-        changeStatus(txId, 6);
+        changeStatus(txId, 3);
     }
 }
