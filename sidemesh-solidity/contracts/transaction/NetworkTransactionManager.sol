@@ -46,7 +46,8 @@ contract NetworkTransactionManager {
     event NetworkTxStatus(
         string txId,
         NetworkTransactionStatusType status,
-        string primaryNetworkUrl
+        string primaryNetworkUrl,
+        string networkUrl
     );
 
     mapping(bytes32 => Transaction) transactions;
@@ -76,11 +77,12 @@ contract NetworkTransactionManager {
 
     function changeStatus(string memory txId, uint _status) public checkTx(txId, true, ERROR_TX_NOT_EXIST){
         bytes32 hash = keccak256(abi.encodePacked(txId));
-        
+        require(_status != 2 && _status-1 == uint(transactions[hash].status), ERROR_INVALID_STATUS);
         transactions[hash].status = NetworkTransactionStatusType(_status);
 
-        (, , string memory url) = register.resolveNetwork(transactions[hash].primaryNetworkId);
-        emit NetworkTxStatus(txId, NetworkTransactionStatusType(_status), url);
+        (, , string memory primaryNetworkUrl) = register.resolveNetwork(transactions[hash].primaryNetworkId);
+            (, , string memory networkUrl) = register.resolveNetwork(transactions[hash].networkId);
+        emit NetworkTxStatus(txId, NetworkTransactionStatusType(_status), primaryNetworkUrl, networkUrl);
     }
 
     function startNetworkTransaction(
@@ -91,7 +93,6 @@ contract NetworkTransactionManager {
         bytes memory args)
         external checkInvocationID(networkId, invocationId) checkTx(txId, false, ERROR_TX_EXIST) {            
             bytes32 hash = keccak256(abi.encodePacked(txId));
-            // require(transactions[hash].status == NetworkTransactionStatusType.PRIMARY_TRANSACTION_PREPARED, Constants.ERROR_INVALID_STATUS);
 
             register.addArgs(networkId, invocationId, args);
 
@@ -124,10 +125,10 @@ contract NetworkTransactionManager {
             
             (bool success, bytes memory data) = contractAddress.call(abi.encodeWithSignature(functionSignature, args));
             (, , string memory url) = register.resolveNetwork(transactions[hash].primaryNetworkId);
-
-            emit ConfirmNetworkTransaction(txId, success, data, url);
             
             lockManager.releaseLock(txId);
             changeStatus(txId, 5);
+
+            emit ConfirmNetworkTransaction(txId, success, data, url);
     }
 }

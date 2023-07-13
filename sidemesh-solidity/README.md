@@ -29,14 +29,14 @@ ff deploy etherum dev CrossNetwork.json
   "input": {
     "id": "1",
     "name": "besu-1",
-    "url": "http://192.168.0.215:5001"
+    "url": "http://192.168.0.214:5001"
   }
 }
 // registerNetwork
 {
   "input": {
-    "contractAddress": "0xa38aefbe07a2156f8d22cf8148c26d01dafd547a",
-    "functionSignature": "set(uint256)",
+    "contractAddress": "0x29b834ea8231c73c7afe0b383dc520256a0bc6a0",
+    "functionSignature": "set(bytes)",
     "invocationId": "iv-1",
     "name": "Set",
     "networkId": "2",
