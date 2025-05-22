@@ -1,0 +1,20 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Sidemesh - Contract Kit
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Shritesh
+    family-names: Jamulkar
+    email: jamulkas@tcd.ie
+repository-code: >-
+  https://github.com/Shritesh99/sidecar-contract-kit/tree/main
+abstract: >-
+  Sidecar Contract Kit - provides on-chain transaction
+  life-cycle interfaces and a phase locking mechanism for
+  state locking of smart contracts and submission of
+  transactions
