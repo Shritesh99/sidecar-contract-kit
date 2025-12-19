@@ -18,7 +18,7 @@ contract CrossChain is CommonChain{
         string memory primaryNetworkId,
         string memory networkId,
         string memory invocationId,
-        bytes memory args)
+        bytes[] memory args)
             public{
                 callbackContract = msg.sender;
                 primaryTransactionManager.startPrimaryTransaction(txId, primaryNetworkId);

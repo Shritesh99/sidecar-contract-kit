@@ -31,6 +31,7 @@ contract NetworkTransactionManager {
         // string txProof;
         NetworkTransactionStatusType status;
         bool isValid;
+        bytes[] args;
     }
 
     event ConfirmNetworkTransaction(
@@ -85,11 +86,9 @@ contract NetworkTransactionManager {
         string memory primaryNetworkId,
         string memory networkId,
         string memory invocationId,
-        bytes memory args)
+        bytes[] memory args)
         external checkInvocationID(networkId, invocationId) checkTx(txId, false, ERROR_TX_EXIST) {            
             bytes32 hash = keccak256(abi.encodePacked(txId));
-
-            register.addArgs(networkId, invocationId, args);
 
             Transaction storage tsx = transactions[hash];
             tsx.txId = txId;
@@ -97,6 +96,7 @@ contract NetworkTransactionManager {
             tsx.isValid = true;
             transactions[hash].networkId = networkId;
             transactions[hash].invocationId = invocationId;
+            transactions[hash].args = args;
             tsx.status = NetworkTransactionStatusType.NETWORK_TRANSACTION_STARTED;
             
             changeStatus(txId, 0);
@@ -108,13 +108,56 @@ contract NetworkTransactionManager {
             changeStatus(txId, 1);
     }
 
+    function paddedLength(uint256 len) public pure returns (uint256) {
+        return ((len + 31) / 32) * 32;
+    }
+
+    function buildCalldata(bytes4 selector, bytes[] memory args) public pure returns (bytes memory) {
+        uint256 baseOffset = args.length * 32;
+        uint256[] memory offsets = new uint256[](args.length);
+        uint256 currentOffset = baseOffset;
+        
+        for (uint i = 0; i < args.length; i++) {
+            offsets[i] = currentOffset;
+            // Each dynamic type needs: 32 bytes for length + padded data
+            currentOffset += 32 + paddedLength(args[i].length);
+        }
+        
+        // Build calldata: selector + offsets + encoded args
+        bytes memory callData = abi.encodePacked(selector);
+        
+        // Append all offsets
+        for (uint i = 0; i < offsets.length; i++) {
+            callData = abi.encodePacked(callData, abi.encode(offsets[i]));
+        }
+        
+        // Append all argument data with length prefix and padding
+        for (uint i = 0; i < args.length; i++) {
+            // Encode length (32 bytes) + data + padding
+            callData = abi.encodePacked(callData, abi.encode(args[i].length));
+            callData = abi.encodePacked(callData, args[i]);
+            
+            // Add padding to reach 32-byte boundary
+            uint256 padding = paddedLength(args[i].length) - args[i].length;
+            if (padding > 0) {
+                bytes memory paddingBytes = new bytes(padding);
+                callData = abi.encodePacked(callData, paddingBytes);
+            }
+        }
+        
+        return callData;
+    }
+    
     function confirmNetworkTransaction(string memory txId)
         external checkTx(txId, true, ERROR_TX_NOT_EXIST){
             bytes32 hash = keccak256(abi.encodePacked(txId));
 
-            (, address contractAddress, string memory functionSignature, bytes memory args) = register.resolveInvocation(transactions[hash].networkId, transactions[hash].invocationId);
+            (, address contractAddress, string memory functionSignature) = register.resolveInvocation(transactions[hash].networkId, transactions[hash].invocationId);
+
+            bytes4 selector = bytes4(keccak256(bytes(functionSignature)));
+            bytes memory callData = buildCalldata(selector, transactions[hash].args);
             
-            (bool success, bytes memory data) = contractAddress.call(abi.encodeWithSignature(functionSignature, args));
+            (bool success, bytes memory data) = contractAddress.call(callData);
             (, , string memory url) = register.resolveNetwork(transactions[hash].primaryNetworkId);
             
             lockManager.releaseLock(txId);

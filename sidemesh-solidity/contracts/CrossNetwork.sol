@@ -16,7 +16,7 @@ contract CrossNetwork is CommonChain {
         string memory primaryNetworkId,
         string memory networkId,
         string memory invocationId,
-        bytes memory args) 
+        bytes[] memory args) 
             public{
                 networkTransactionManager.startNetworkTransaction(txId, primaryNetworkId, networkId, invocationId, args);
                 networkTransactionManager.prepareNetworkTransaction(txId);

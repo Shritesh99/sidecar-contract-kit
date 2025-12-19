@@ -45,7 +45,7 @@ ff deploy etherum dev CrossNetwork.json
   "input": {
     "contractAddress": "0x29b834ea8231c73c7afe0b383dc520256a0bc6a0",
     "functionSignature": "set(bytes)",
-    "invocationId": "iv-1",
+    "id": "iv-1",
     "networkId": "2"
   }
 }

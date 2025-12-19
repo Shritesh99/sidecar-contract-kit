@@ -16,7 +16,7 @@ contract CallerContract {
         string memory primaryNetworkId,
         string memory networkId,
         string memory invocationId,
-        bytes memory args)
+        bytes[] memory args)
         public {
             CrossChain crossChain = CrossChain(crossChainAddress);
             crossChain.doCross(txId, primaryNetworkId, networkId, invocationId, args);

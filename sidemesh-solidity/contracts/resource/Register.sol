@@ -17,7 +17,6 @@ contract Register{
         string id;
         address contractAddress;
         string functionSignature;
-        bytes args;
         bool isValid;
     }
 
@@ -130,23 +129,14 @@ contract Register{
     function resolveInvocation(string memory networkId, string memory id)
         external view
         checkInvocationID(networkId, id, true, ERROR_INO_ID_NOT_FOUND)
-        returns(string memory, address, string memory, bytes memory){
+        returns(string memory, address, string memory){
             bytes32 hashNetworkID = keccak256(bytes(networkId));
             bytes32 hash = keccak256(bytes(id));
 
             return (
                 registeredNetworks[hashNetworkID].invocations[hash].id,
                 registeredNetworks[hashNetworkID].invocations[hash].contractAddress,
-                registeredNetworks[hashNetworkID].invocations[hash].functionSignature,
-                registeredNetworks[hashNetworkID].invocations[hash].args
+                registeredNetworks[hashNetworkID].invocations[hash].functionSignature
             );    
-    }
-
-    function addArgs(string memory networkId, string memory id, bytes memory args)
-        external  checkInvocationID(networkId, id, true, ERROR_INO_ID_NOT_FOUND){
-            bytes32 hashNetworkID = keccak256(bytes(networkId));
-            bytes32 hash = keccak256(bytes(id));
-
-            registeredNetworks[hashNetworkID].invocations[hash].args = args;
     }
 }

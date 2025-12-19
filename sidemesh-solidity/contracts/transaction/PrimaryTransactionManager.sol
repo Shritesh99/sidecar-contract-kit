@@ -36,6 +36,7 @@ contract PrimaryTransactionManager {
         PrimaryTransactionStatusType status;
         bool isValid;
         address callerContract;
+        bytes[] args;
     }
 
     event PreparePrimaryTransaction(
@@ -44,7 +45,7 @@ contract PrimaryTransactionManager {
         string networkId,
         string url,
         string invocationId,
-        bytes args
+        bytes[] args
     );
 
     event PrimaryTxStatus(
@@ -103,16 +104,15 @@ contract PrimaryTransactionManager {
         string memory txId,
         string memory networkId,
         string memory invocationId,
-        bytes memory args,
+        bytes[] memory args,
         address callerContract)
         external checkInvocationID(networkId, invocationId) checkTx(txId, true, ERROR_TX_NOT_EXIST){
             bytes32 hash = keccak256(abi.encodePacked(txId));
             
-            register.addArgs(networkId, invocationId, args);
-
             transactions[hash].networkId = networkId;
             transactions[hash].invocationId = invocationId;
             transactions[hash].callerContract = callerContract;
+            transactions[hash].args = args;
     }
 
     function preparePrimaryTransaction(string memory txId)
@@ -122,9 +122,9 @@ contract PrimaryTransactionManager {
             
             (string memory networkId, , string memory url) = register.resolveNetwork(transactions[hash].networkId);
             
-            (string memory invocatonId, , , bytes memory args) = register.resolveInvocation(transactions[hash].networkId, transactions[hash].invocationId);
+            (string memory invocatonId, ,) = register.resolveInvocation(transactions[hash].networkId, transactions[hash].invocationId);
             changeStatus(txId, 1);
-            emit PreparePrimaryTransaction(txId, transactions[hash].primaryNetworkId, networkId, url, invocatonId, args);
+            emit PreparePrimaryTransaction(txId, transactions[hash].primaryNetworkId, networkId, url, invocatonId, transactions[hash].args);
     }
 
     function confirmPrimaryTransaction(string memory txId)
