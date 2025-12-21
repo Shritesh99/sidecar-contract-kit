@@ -1,0 +1,198 @@
+================================================================================
+📊 Benchmark Results - Target: 10 Completed Transactions
+================================================================================
+Total Time: 16.0340s
+End Time: 2025-12-21 16:49:16
+
+📊 Summary:
+  Completed: 10/10 ✅
+  Failed: 0
+  Timeout: 1
+  Pending: 0
+  Total Sent: 11
+  Events Received: 10
+  Event Loss Rate: 9.09%
+
+⏱️  Transaction Times:
+  Average: 4.2099s
+  Min: 3.7925s
+  Max: 4.6625s
+  Throughput: 0.62 tx/s
+
+================================================================================
+📊 Benchmark Results - 10 Transactions (Parallel)
+================================================================================
+Total Time: 5.0182s
+End Time: 2025-12-19 22:47:15
+
+Completed: 10/10
+Failed: 0/10
+Pending: 0/10
+
+⏱️  Transaction Times:
+  Average: 3.8736s
+  Min: 3.4144s
+  Max: 4.2959s
+  Throughput: 1.99 tx/s
+
+================================================================================
+📊 Benchmark Results - Target: 50 Completed Transactions
+================================================================================
+Total Time: 27.0922s
+End Time: 2025-12-21 16:39:54
+
+📊 Summary:
+  Completed: 50/50 ✅
+  Failed: 0
+  Timeout: 8
+  Pending: 0
+  Total Sent: 58
+  Events Received: 50
+  Event Loss Rate: 13.79%
+
+⏱️  Transaction Times:
+  Average: 4.5021s
+  Min: 3.8058s
+  Max: 5.2046s
+  Throughput: 1.85 tx/s
+
+================================================================================
+📊 Benchmark Results - Target: 50 Completed Transactions
+================================================================================
+Total Time: 30.0905s
+End Time: 2025-12-21 16:46:59
+
+📊 Summary:
+  Completed: 50/50 ✅
+  Failed: 0
+  Timeout: 7
+  Pending: 0
+  Total Sent: 57
+  Events Received: 50
+  Event Loss Rate: 12.28%
+
+⏱️  Transaction Times:
+  Average: 4.2203s
+  Min: 3.4678s
+  Max: 4.7339s
+  Throughput: 1.66 tx/s
+
+================================================================================
+📊 Benchmark Results - 50 Transactions (Parallel)
+================================================================================
+Total Time: 10.0677s
+End Time: 2025-12-19 22:48:11
+
+Completed: 50/50
+Failed: 0/50
+Pending: 0/50
+
+⏱️  Transaction Times:
+  Average: 4.8139s
+  Min: 3.3972s
+  Max: 5.4983s
+  Throughput: 4.97 tx/s
+
+================================================================================
+📊 Benchmark Results - Target: 100 Completed Transactions
+================================================================================
+Total Time: 30.1417s
+End Time: 2025-12-21 16:31:44
+
+📊 Summary:
+  Completed: 92/100 ✅
+  Failed: 5
+  Timeout: 29
+  Pending: 0
+  Total Sent: 126
+  Events Received: 92
+  Event Loss Rate: 26.98%
+
+⏱️  Transaction Times:
+  Average: 4.6984s
+  Min: 3.9369s
+  Max: 5.3775s
+  Throughput: 3.05 tx/s
+
+================================================================================
+📊 Benchmark Results - Target: 100 Completed Transactions
+================================================================================
+Total Time: 28.1409s
+End Time: 2025-12-21 16:19:58
+
+📊 Summary:
+  Completed: 100/100 ✅
+  Failed: 0
+  Timeout: 17
+  Pending: 0
+  Total Sent: 117
+  Events Received: 100
+
+⏱️  Transaction Times:
+  Average: 4.4439s
+  Min: 3.6323s
+  Max: 5.1405s
+  Throughput: 3.55 tx/s
+
+================================================================================
+📊 Benchmark Results - Target: 150 Completed Transactions
+================================================================================
+Total Time: 30.1904s
+End Time: 2025-12-21 16:29:59
+
+📊 Summary:
+  Completed: 136/150 ✅
+  Failed: 10
+  Timeout: 33
+  Pending: 0
+  Total Sent: 179
+  Events Received: 136
+  Event Loss Rate: 24.02%
+
+⏱️  Transaction Times:
+  Average: 4.1509s
+  Min: 3.2203s
+  Max: 4.8788s
+  Throughput: 4.50 tx/s
+
+================================================================================
+📊 Benchmark Results - Target: 1000 Completed Transactions
+================================================================================
+Total Time: 101.7026s
+End Time: 2025-12-21 16:56:58
+
+📊 Summary:
+  Completed: 762/1000 ✅
+  Failed: 37
+  Timeout: 201
+  Pending: 0
+  Total Sent: 1000
+  Events Received: 762
+  Event Loss Rate: 23.80%
+
+⏱️  Transaction Times:
+  Average: 4.7981s
+  Min: 3.0956s
+  Max: 6.2100s
+  Throughput: 7.49 tx/s
+
+================================================================================
+📊 Benchmark Results - Target: 1000 Completed Transactions
+================================================================================
+Total Time: 101.7093s
+End Time: 2025-12-21 16:59:46
+
+📊 Summary:
+  Completed: 812/1000 ✅
+  Failed: 48
+  Timeout: 140
+  Pending: 0
+  Total Sent: 1000
+  Events Received: 812
+  Event Loss Rate: 18.80%
+
+⏱️  Transaction Times:
+  Average: 4.7367s
+  Min: 3.5098s
+  Max: 5.9271s
+  Throughput: 7.98 tx/s

@@ -26,6 +26,8 @@ benchmark_start_time = None
 transaction_completion_event = None
 current_tx_id = None
 current_args = None
+events_received_count = 0
+last_event_time = time.time()  # Add this line
 
 
 def log_request(method: str, url: str, data: Optional[Dict] = None) -> None:
@@ -64,10 +66,14 @@ async def handle_ws_event(event_data: Dict[str, Any], connection_name: str) -> N
         event_data: Event data received from WebSocket
         connection_name: Name of the connection (Primary/Network)
     """
-    global transaction_events
+    global transaction_events, events_received_count
 
     event_type = event_data.get("type")
-    print(event_data)
+    events_received_count += 1
+
+    print(
+        f"\n📥 [{connection_name}] Event #{events_received_count} received (type: {event_type})")
+
     if event_type == "blockchain_event_received":
         blockchain_event = event_data.get("blockchainEvent", {})
         output_key = blockchain_event.get("output", {}).get("key")
@@ -97,7 +103,7 @@ async def handle_ws_event(event_data: Dict[str, Any], connection_name: str) -> N
                 print(f"   Elapsed Time: {elapsed:.4f}s")
                 break
     else:
-        print(f"\n📥 [{connection_name}] Event received (type: {event_type})")
+        print(f"   Event Type: {event_type}")
 
 
 async def ws_listen_and_send(ws_url: str, connection_name: str, send_events: Optional[list] = None) -> None:
@@ -192,7 +198,8 @@ def api_call(
         else:
             raise ValueError(f"Unsupported HTTP method: {method}")
 
-        log_response(response)
+        if response.status_code >= 400:
+            log_response(response)
         response.raise_for_status()
         return response
 
@@ -257,67 +264,137 @@ async def run_transaction(tx_id: str, args: bytes) -> None:
         doCross(tx_id, args)
         print(f"✅ doCross API call successful for {tx_id}")
     except Exception as e:
-        print(f"❌ Error in doCross for {tx_id}: {e}")
-        transaction_events[tx_id]["status"] = "failed"
+        print(f"⚠️  Error in doCross for {tx_id}: {e}")
+        transaction_events[tx_id_hex]["status"] = "failed"
 
 
 async def run_benchmark(num_transactions: int):
     """
-    Run benchmark with specified number of transactions in parallel
+    Run benchmark until we get num_transactions completed transactions.
+    Retries failed/timeout transactions until target is reached.
 
     Args:
-        num_transactions: Number of transactions to run
+        num_transactions: Number of completed transactions needed
     """
-    global benchmark_start_time, transaction_events
+    global benchmark_start_time, transaction_events, events_received_count
 
     transaction_events = {}
+    events_received_count = 0
     benchmark_start_time = time.time()
 
     print(f"\n\n{'='*80}")
     print(
-        f"🚀 Starting Benchmark with {num_transactions} transactions (Parallel)")
+        f"🚀 Starting Benchmark - Target: {num_transactions} completed transactions")
     print(f"{'='*80}")
     print(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Create tasks for all transactions
     tasks = []
-    for i in range(num_transactions):
+    sent_count = 0
+    pending_timeout = 10  # seconds
+    last_event_time = time.time()
+    event_silence_timeout = 180  # If no events for 30s, consider connection stalled
+
+    while sent_count < num_transactions:
         tx_id = generate_random_tx_id()
         args = generate_random_args()
         task = asyncio.create_task(run_transaction(tx_id, args))
         tasks.append(task)
+        sent_count += 1
+
+        print(f"📤 Sent transaction {sent_count}/{num_transactions}")
+
         # Small delay between API calls
         await asyncio.sleep(0.1)
 
     # Wait for all API calls to complete
     await asyncio.gather(*tasks)
 
-    # Wait for all transactions to complete (with timeout)
-    print(f"\n⏳ Waiting for all transactions to complete (timeout: 120s)...")
+    # Monitor pending transactions and mark as failed if they exceed timeout
+    print(f"\n⏳ Waiting for transactions to complete...")
     start_wait = time.time()
-    timeout = 3000
+    overall_timeout = 6000  # 10 minutes total timeout
+    check_interval = 1
 
     while True:
+        completed = [tx for tx in transaction_events.values()
+                     if tx["status"] == "completed"]
         pending = [tx for tx in transaction_events.values()
                    if tx["status"] == "pending"]
 
-        if not pending:
-            break
-
-        elapsed_wait = time.time() - start_wait
-        if elapsed_wait > timeout:
+        # Check if we've reached target completed transactions
+        if len(completed) >= num_transactions:
             print(
-                f"⚠️  Timeout reached. {len(pending)} transactions still pending.")
+                f"\n✅ Reached target! {len(completed)} transactions completed.")
             break
 
-        await asyncio.sleep(1)
+        elapsed_overall = time.time() - start_wait
+
+        # Check for event silence (no new events arriving)
+        current_time = time.time()
+        time_since_last_event = current_time - last_event_time
+
+        if time_since_last_event > event_silence_timeout and pending:
+            print(
+                f"\n⚠️  No events received for {event_silence_timeout}s. {len(pending)} transactions still pending.")
+            print(f"   Events received so far: {events_received_count}")
+            print(f"   Expected: {num_transactions}, Got: {len(completed)}")
+            print(
+                f"   Marking {len(pending)} pending transactions as timeout...")
+
+            # Mark all remaining pending as timeout
+            for tx_id, tx_info in list(transaction_events.items()):
+                if tx_info["status"] == "pending":
+                    tx_info["status"] = "timeout"
+                    tx_info["end_time"] = current_time
+                    tx_info["elapsed_time"] = current_time - \
+                        tx_info.get("start_time", benchmark_start_time)
+            break
+
+        if elapsed_overall > overall_timeout:
+            print(
+                f"⚠️  Overall timeout reached. {len(completed)} completed, {len(pending)} still pending.")
+            # Mark all remaining pending as timeout
+            for tx_id, tx_info in list(transaction_events.items()):
+                if tx_info["status"] == "pending":
+                    tx_info["status"] = "timeout"
+                    tx_info["end_time"] = current_time
+                    tx_info["elapsed_time"] = current_time - \
+                        tx_info.get("start_time", benchmark_start_time)
+            break
+
+        # Check for transactions that have been pending for too long
+        for tx_id, tx_info in list(transaction_events.items()):
+            if tx_info["status"] == "pending":
+                elapsed_since_start = current_time - \
+                    tx_info.get("start_time", benchmark_start_time)
+
+                if elapsed_since_start > pending_timeout:
+                    print(
+                        f"⏱️  Transaction {tx_id} exceeded {pending_timeout}s timeout. Marking as failed and sending new one...")
+                    tx_info["status"] = "timeout"
+                    tx_info["end_time"] = current_time
+                    tx_info["elapsed_time"] = elapsed_since_start
+
+                    # Send a new transaction to replace it
+                    new_tx_id = generate_random_tx_id()
+                    new_args = generate_random_args()
+                    new_task = asyncio.create_task(
+                        run_transaction(new_tx_id, new_args))
+                    tasks.append(new_task)
+                    sent_count += 1
+                    print(
+                        f"📤 Sent replacement transaction (Total sent: {sent_count})")
+
+        await asyncio.sleep(check_interval)
 
     benchmark_end_time = time.time()
     total_time = benchmark_end_time - benchmark_start_time
 
     # Print results
     print(f"\n\n{'='*80}")
-    print(f"📊 Benchmark Results - {num_transactions} Transactions (Parallel)")
+    print(
+        f"📊 Benchmark Results - Target: {num_transactions} Completed Transactions")
     print(f"{'='*80}")
     print(f"Total Time: {total_time:.4f}s")
     print(f"End Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -326,12 +403,20 @@ async def run_benchmark(num_transactions: int):
                  if tx["status"] == "completed"]
     failed = [tx for tx in transaction_events.values() if tx["status"]
               == "failed"]
+    timeout = [tx for tx in transaction_events.values() if tx["status"]
+               == "timeout"]
     pending = [tx for tx in transaction_events.values() if tx["status"]
                == "pending"]
 
-    print(f"\nCompleted: {len(completed)}/{num_transactions}")
-    print(f"Failed: {len(failed)}/{num_transactions}")
-    print(f"Pending: {len(pending)}/{num_transactions}")
+    print(f"\n📊 Summary:")
+    print(f"  Completed: {len(completed)}/{num_transactions} ✅")
+    print(f"  Failed: {len(failed)}")
+    print(f"  Timeout: {len(timeout)}")
+    print(f"  Pending: {len(pending)}")
+    print(f"  Total Sent: {sent_count}")
+    print(f"  Events Received: {events_received_count}")
+    print(
+        f"  Event Loss Rate: {((sent_count - len(completed)) / sent_count * 100):.2f}%")
 
     if completed:
         times = [tx["elapsed_time"] for tx in completed]
@@ -345,16 +430,13 @@ async def run_benchmark(num_transactions: int):
         print(f"  Max: {max_time:.4f}s")
         print(f"  Throughput: {len(completed) / total_time:.2f} tx/s")
 
-    # Print individual transaction details
-    print(f"\n📋 Individual Transactions:")
+    # Print individual transaction details (only completed ones)
+    print(f"\n📋 Completed Transactions:")
     for tx_id, tx_info in sorted(transaction_events.items()):
-        status = tx_info["status"]
-        elapsed = tx_info.get("elapsed_time")
-        if elapsed:
+        if tx_info["status"] == "completed":
+            elapsed = tx_info.get("elapsed_time")
             print(
-                f"  {tx_id}: {status} ({elapsed:.4f}s) - Args: {tx_info['args']}")
-        else:
-            print(f"  {tx_id}: {status} - Args: {tx_info['args']}")
+                f"  {tx_id}: {elapsed:.4f}s - Args: {tx_info['args'].hex()}")
 
     print(f"\n{'='*80}\n")
 
@@ -398,7 +480,7 @@ async def main():
     await asyncio.sleep(2)
 
     # Run benchmark with 10 transactions first
-    await run_benchmark(50)
+    await run_benchmark(1000)
 
     # Cleanup
     print("🛑 Shutting down...")
