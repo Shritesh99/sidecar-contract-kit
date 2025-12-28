@@ -20,22 +20,6 @@ End Time: 2025-12-21 16:49:16
   Throughput: 0.62 tx/s
 
 ================================================================================
-📊 Benchmark Results - 10 Transactions (Parallel)
-================================================================================
-Total Time: 5.0182s
-End Time: 2025-12-19 22:47:15
-
-Completed: 10/10
-Failed: 0/10
-Pending: 0/10
-
-⏱️  Transaction Times:
-  Average: 3.8736s
-  Min: 3.4144s
-  Max: 4.2959s
-  Throughput: 1.99 tx/s
-
-================================================================================
 📊 Benchmark Results - Target: 50 Completed Transactions
 ================================================================================
 Total Time: 27.0922s
@@ -76,22 +60,6 @@ End Time: 2025-12-21 16:46:59
   Min: 3.4678s
   Max: 4.7339s
   Throughput: 1.66 tx/s
-
-================================================================================
-📊 Benchmark Results - 50 Transactions (Parallel)
-================================================================================
-Total Time: 10.0677s
-End Time: 2025-12-19 22:48:11
-
-Completed: 50/50
-Failed: 0/50
-Pending: 0/50
-
-⏱️  Transaction Times:
-  Average: 4.8139s
-  Min: 3.3972s
-  Max: 5.4983s
-  Throughput: 4.97 tx/s
 
 ================================================================================
 📊 Benchmark Results - Target: 100 Completed Transactions
